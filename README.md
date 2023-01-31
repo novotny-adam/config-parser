@@ -9,13 +9,13 @@ Lightweight configuration parser and API for the `.conf` files.
 Install with [npm](https://www.npmjs.com/):
 
 ```sh
-$ npm install --save config-parser
+$ npm install --save lightweight-config-parser
 ```
 
 Install with [yarn](https://yarnpkg.com):
 
 ```sh
-$ yarn add config-parser
+$ yarn add lightweight-config-parser
 ```
 
 ## Usage
@@ -23,7 +23,7 @@ $ yarn add config-parser
 - To use the `Configuration` class in a TypeScript file -
 
 ```ts
-import { Configuration } from 'config-parser';
+import { Configuration } from 'lightweight-config-parser';
 
 const config = new Configuration('/path/to/config.conf');
 ```
@@ -31,7 +31,7 @@ const config = new Configuration('/path/to/config.conf');
 - To use the `Configuration` class in a JavaScript file -
 
 ```js
-const Configuration = require('config-parser').Configuration;
+const Configuration = require('lightweight-config-parser').Configuration;
 
 const config = new Configuration('/path/to/config.conf');
 ```
