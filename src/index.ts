@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { dirname, resolve } from 'path';
+import { resolve } from 'path';
 
 import * as _ from 'lodash';
 
@@ -11,23 +11,20 @@ const regexNumber = /^\d+$/;
 export class Configuration {
   private path: string;
   private object: any;
-  private directory: string;
 
   constructor(filename: string) {
     this.path = resolve(filename);
     const data = readFileSync(this.path, 'utf8');
-
-    this.directory = dirname(this.path);
-
-    // Holds the configuration values
     this.object = this.parseConfig(data);
   }
 
   public get(key: string): any {
     return _.get(this.object, key);
   }
-
-  private parseConfig(data: string) {
+  public has(key: string): boolean {
+    return _.has(this.object, key);
+  }
+  private parseConfig(data: string): Record<string, any> {
     const lines = this.getFilteredLines(data);
     const procesedLinesArray = this.processLines(lines);
     return this.createJson(procesedLinesArray);
@@ -47,32 +44,32 @@ export class Configuration {
     return lines;
   }
   private processLines(lines: Array<string>): Array<string> {
-    const newJson = [];
+    const procesedLines = [];
     for (let i = 0; i < lines.length; i++) {
       let currentLine = lines[i];
       let previousLine = lines[i - 1];
       if (regexStartNest.test(currentLine)) {
         if (previousLine === '}' || previousLine === '[' || regexKeyValue.test(previousLine)) {
-          newJson.push(currentLine.replace(/^/, ',"').replace(' {', '":{'));
+          procesedLines.push(currentLine.replace(/^/, ',"').replace(' {', '":{'));
         } else {
-          newJson.push(currentLine.replace(/^/, '"').replace(' {', '":{'));
+          procesedLines.push(currentLine.replace(/^/, '"').replace(' {', '":{'));
         }
       } else if (regexKeyValue.test(currentLine)) {
         let object = this.getKeyValue(currentLine);
         if (previousLine === '}' || previousLine === ']' || regexKeyValue.test(previousLine)) {
-          newJson.push(`,"${object.key}":${this.formatValue(object.value)}`);
+          procesedLines.push(`,"${object.key}":${this.formatValue(object.value)}`);
         } else {
-          newJson.push(`"${object.key}":${this.formatValue(object.value)}`);
+          procesedLines.push(`"${object.key}":${this.formatValue(object.value)}`);
         }
       } else if (regexStartArrayNest.test(currentLine)) {
-        newJson.push(currentLine.replace(/^/, '"').replace('=[', '":['));
+        procesedLines.push(currentLine.replace(/^/, '"').replace('=[', '":['));
       } else if (currentLine === '{' && previousLine === '}') {
-        newJson.push(`,${currentLine}`);
+        procesedLines.push(`,${currentLine}`);
       } else {
-        newJson.push(currentLine);
+        procesedLines.push(currentLine);
       }
     }
-    return newJson;
+    return procesedLines;
   }
   private createJson(formatedLines: Array<string>): Record<string, any> {
     return JSON.parse(formatedLines.join(''));
