@@ -29,7 +29,7 @@ export class Configuration {
     const procesedLinesArray = this.processLines(lines);
     return this.createJson(procesedLinesArray);
   }
-  private getFilteredLines(data: string): Array<string> {
+  private getFilteredLines(data: string): string[] {
     let lines = data.split('\n');
     lines.unshift('{');
     // remove whitespaces from the lines
@@ -43,11 +43,11 @@ export class Configuration {
     lines.push('}');
     return lines;
   }
-  private processLines(lines: Array<string>): Array<string> {
+  private processLines(lines: string[]): string[] {
     const procesedLines = [];
     for (let i = 0; i < lines.length; i++) {
-      let currentLine = lines[i];
-      let previousLine = lines[i - 1];
+      const currentLine = lines[i];
+      const previousLine = lines[i - 1];
       if (regexStartNest.test(currentLine)) {
         if (previousLine === '}' || previousLine === '[' || regexKeyValue.test(previousLine)) {
           procesedLines.push(currentLine.replace(/^/, ',"').replace(' {', '":{'));
@@ -55,7 +55,7 @@ export class Configuration {
           procesedLines.push(currentLine.replace(/^/, '"').replace(' {', '":{'));
         }
       } else if (regexKeyValue.test(currentLine)) {
-        let object = this.getKeyValue(currentLine);
+        const object = this.getKeyValue(currentLine);
         if (previousLine === '}' || previousLine === ']' || regexKeyValue.test(previousLine)) {
           procesedLines.push(`,"${object.key}":${this.formatValue(object.value)}`);
         } else {
@@ -71,7 +71,7 @@ export class Configuration {
     }
     return procesedLines;
   }
-  private createJson(formatedLines: Array<string>): Record<string, any> {
+  private createJson(formatedLines: string[]): Record<string, any> {
     return JSON.parse(formatedLines.join(''));
   }
   private getKeyValue(line: string): Record<string, any> {
