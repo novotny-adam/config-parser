@@ -8,15 +8,15 @@
     "lib/**/*"
   ],
   "scripts": {
-    "test": "yarn jest --runInBand --forceExit",
+    "test": "npm jest --runInBand --forceExit",
     "build": "tsc",
     "format": "prettier --write \"src/*.ts\"",
     "lint": "tslint -p tsconfig.json",
     "start": "ts-node ./src/index.ts",
-    "prepare": "yarn run build",
-    "prepublishOnly": "yarn test && yarn run lint",
-    "preversion": "yarn run lint",
-    "version": "yarn run format && git add -A src",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags"
   },
   "repository": "https://github.com/novotny-adam/config-parser.git",
