@@ -19,32 +19,32 @@ export class Configuration {
     this.object = this.parseConfig(data);
   }
 
-  public get(key: string, env: boolean = false): any {
+  public get(key: string, isEnvironmental: boolean = false): any {
     const envKey = this.appendEnvToLastSegment(key);
     const envResult = _.get(this.object, envKey);
     const nonEnvResult = _.get(this.object, key);
 
-    if ((env && envResult) || (!env && !nonEnvResult && envResult)) {
+    if ((isEnvironmental && envResult) || (!isEnvironmental && !nonEnvResult && envResult)) {
       return envResult;
-    } else if (!env && nonEnvResult) {
+    } else if (!isEnvironmental && nonEnvResult) {
       return nonEnvResult;
-    } else if (env && !envResult && nonEnvResult) {
+    } else if (isEnvironmental && !envResult && nonEnvResult) {
       throw new Error(`Path '${key}' exists without environment duplicity. Remove the 'env' parameter.`);
     } else {
       throw new Error(`No value exists for path: '${key}'.`);
     }
   }
 
-  public has(key: string, env: boolean = false): boolean {
+  public has(key: string, isEnvironmental: boolean = false): boolean {
     const envKey = this.appendEnvToLastSegment(key);
     const hasEnvResult = _.has(this.object, envKey);
     const hasNonEnvResult = _.has(this.object, key);
 
-    if ((env && hasEnvResult) || (!env && !hasNonEnvResult && hasEnvResult)) {
+    if ((isEnvironmental && hasEnvResult) || (!isEnvironmental && !hasNonEnvResult && hasEnvResult)) {
       return true;
-    } else if (!env && hasNonEnvResult) {
+    } else if (!isEnvironmental && hasNonEnvResult) {
       return true;
-    } else if (env && !hasEnvResult && hasNonEnvResult) {
+    } else if (isEnvironmental && !hasEnvResult && hasNonEnvResult) {
       throw new Error(`Path '${key}' exists without environment duplicity. Remove the 'env' parameter.`);
     } else {
       return false;
