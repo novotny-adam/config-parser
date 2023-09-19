@@ -7,6 +7,7 @@ const regexStartNest = /.+\{$/;
 const regexStartArrayNest = /.+\[$/;
 const regexKeyValue = /=+/;
 const regexNumber = /^\d+$/;
+const regexEnvValue = /":"\$\{/g;
 
 export class Configuration {
   private path: string;
@@ -18,17 +19,46 @@ export class Configuration {
     this.object = this.parseConfig(data);
   }
 
-  public get(key: string): any {
-    return _.get(this.object, key);
+  public get(key: string, isEnvironmental: boolean = false): any {
+    const envKey = this.appendEnvToLastSegment(key);
+    const envResult = _.get(this.object, envKey);
+    const nonEnvResult = _.get(this.object, key);
+
+    if ((isEnvironmental && envResult) || (!isEnvironmental && !nonEnvResult && envResult)) {
+      return envResult;
+    } else if (!isEnvironmental && nonEnvResult) {
+      return nonEnvResult;
+    } else if (isEnvironmental && !envResult && nonEnvResult) {
+      throw new Error(`Path '${key}' exists without environment duplicity. Remove the 'env' parameter.`);
+    } else {
+      throw new Error(`No value exists for path: '${key}'.`);
+    }
   }
-  public has(key: string): boolean {
-    return _.has(this.object, key);
+
+  public has(key: string, isEnvironmental: boolean = false): boolean {
+    const envKey = this.appendEnvToLastSegment(key);
+    const hasEnvResult = _.has(this.object, envKey);
+    const hasNonEnvResult = _.has(this.object, key);
+
+    if ((isEnvironmental && hasEnvResult) || (!isEnvironmental && !hasNonEnvResult && hasEnvResult)) {
+      return true;
+    } else if (!isEnvironmental && hasNonEnvResult) {
+      return true;
+    } else if (isEnvironmental && !hasEnvResult && hasNonEnvResult) {
+      throw new Error(`Path '${key}' exists without environment duplicity. Remove the 'env' parameter.`);
+    } else {
+      return false;
+    }
   }
+
   private parseConfig(data: string): Record<string, any> {
     const lines = this.getFilteredLines(data);
     const procesedLinesArray = this.processLines(lines);
-    return this.createJson(procesedLinesArray);
+    const mergedLines = this.createStringFormatForJson(procesedLinesArray);
+    const replacedEnvValues = this.appendEnvToKey(mergedLines);
+    return JSON.parse(replacedEnvValues);
   }
+
   private getFilteredLines(data: string): string[] {
     let lines = data.split('\n');
     lines.unshift('{');
@@ -43,6 +73,7 @@ export class Configuration {
     lines.push('}');
     return lines;
   }
+
   private processLines(lines: string[]): string[] {
     const procesedLines = [];
     for (let i = 0; i < lines.length; i++) {
@@ -71,15 +102,18 @@ export class Configuration {
     }
     return procesedLines;
   }
-  private createJson(formatedLines: string[]): Record<string, any> {
-    return JSON.parse(formatedLines.join(''));
+
+  private createStringFormatForJson(formatedLines: string[]): string {
+    return formatedLines.join('');
   }
+
   private getKeyValue(line: string): Record<string, any> {
     return {
       key: line.split('=')[0].trim(),
       value: line.split('=')[1].trim(),
     };
   }
+
   private formatValue(value: string): string {
     if (!(value.startsWith('"') || value.startsWith('['))) {
       if (!(regexNumber.test(value) || value === 'true' || value === 'false' || value === 'null')) {
@@ -87,5 +121,16 @@ export class Configuration {
       }
     }
     return value;
+  }
+
+  private appendEnvToLastSegment(input: string): string {
+    const parts: string[] = input.split('.');
+    parts[parts.length - 1] = `${parts[parts.length - 1]}_env`;
+    return parts.join('.');
+  }
+
+  private appendEnvToKey(input: string): string {
+    const replacement = '_env":"${';
+    return input.replace(regexEnvValue, replacement);
   }
 }
