@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 
 const regexStartNest = /.+\{$/;
 const regexStartArrayNest = /.+\[$/;
-const regexKeyValue = /=+/;
+const regexKeyValue = / = /;
 const regexNumber = /^\d+$/;
 const regexEnvValue = /":"\$\{/g;
 
