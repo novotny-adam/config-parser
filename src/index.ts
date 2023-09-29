@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 
 const regexStartNest = /.+\{$/;
 const regexStartArrayNest = /.+\[$/;
-const regexKeyValue = / = /;
+const regexKeyValue = / ?= ?/;
 const regexNumber = /^\d+$/;
 const regexEnvValue = /":"\$\{/g;
 
@@ -51,7 +51,7 @@ export class Configuration {
     }
   }
 
-  private parseConfig(data: string): Record<string, any> {
+  private parseConfig(data: string) {
     const lines = this.getFilteredLines(data);
     const procesedLinesArray = this.processLines(lines);
     const mergedLines = this.createStringFormatForJson(procesedLinesArray);
@@ -108,9 +108,10 @@ export class Configuration {
   }
 
   private getKeyValue(line: string): Record<string, any> {
+    const parts = line.split('=');
     return {
-      key: line.split('=')[0].trim(),
-      value: line.split('=')[1].trim(),
+      key: parts[0].trim(),
+      value: parts.slice(1).join('=').trim(),
     };
   }
 

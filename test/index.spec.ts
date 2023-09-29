@@ -10,6 +10,9 @@ describe('index', () => {
     expect(config.get('test-of-api.api.baseUrl')).toEqual('http://localhost:8080');
     expect(config.get('test-of-api.api.host')).toEqual('127.0.0.1');
     expect(config.get('test-of-api.api.testUrl')).toEqual('http://localhost:4566/000000000000/testing-url');
+    expect(config.get('test-of-api.api.equals_url')).toEqual(
+      'jdbc:postgresql://localhost:5432/test-application?schema=test_schema',
+    );
   });
   it('Should return correct data types', () => {
     expect(typeof config.get('test-of-api.api.baseUrl')).toBe('string');
