@@ -26,9 +26,9 @@ export class Configuration {
 
     if ((isEnvironmental && envResult) || (!isEnvironmental && !nonEnvResult && envResult)) {
       return envResult;
-    } else if (!isEnvironmental && nonEnvResult) {
+    } else if (!isEnvironmental && nonEnvResult != undefined) {
       return nonEnvResult;
-    } else if (isEnvironmental && !envResult && nonEnvResult) {
+    } else if (isEnvironmental && !envResult && nonEnvResult != undefined) {
       throw new Error(`Path '${key}' exists without environment duplicity. Remove the 'env' parameter.`);
     } else {
       throw new Error(`No value exists for path: '${key}'.`);

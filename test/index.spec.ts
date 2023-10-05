@@ -13,6 +13,7 @@ describe('index', () => {
     expect(config.get('test-of-api.api.equals_url')).toEqual(
       'jdbc:postgresql://localhost:5432/test-application?schema=test_schema',
     );
+    expect(config.get('test-of-api.api.zeroNumber')).toEqual(0);
   });
   it('Should return correct data types', () => {
     expect(typeof config.get('test-of-api.api.baseUrl')).toBe('string');
@@ -21,12 +22,14 @@ describe('index', () => {
     expect(typeof config.get('test-of-api.api.port')).toBe('number');
     expect(typeof config.get('test-of-api.api.apiIds')).toBe('object');
     expect(typeof config.get('test-of-api.api')).toBe('object');
+    expect(typeof config.get('test-of-api.api.zeroNumber')).toBe('number');
   });
   it('Should return information, if configuration file has value or not', () => {
     expect(config.has('test-of-api.api.baseUrl')).toBeTruthy();
     expect(config.has('test-of-api.api')).toBeTruthy();
     expect(config.has('test-of-api.db')).toBeFalsy();
     expect(config.has('test-of-api.duration')).toBeFalsy();
+    expect(config.has('test-of-api.api.zeroNumber')).toBeTruthy();
   });
 });
 
